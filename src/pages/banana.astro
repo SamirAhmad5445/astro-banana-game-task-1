@@ -30,7 +30,7 @@ import Layout from "../layouts/Layout.astro";
 
   async function getCount() {
     try {
-      const response = await fetch(`api/group/${group.id}.json`);
+      const response = await fetch(`/api/group/${group.id}.json`);
       const { data } = await response.json();
 
       counter.innerText = `count = ${data.count}`;
