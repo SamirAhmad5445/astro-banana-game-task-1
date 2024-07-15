@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Welcome to Banana Game.">
+  <form id="join-form">
+    <input type="text" name="name" />
+    <button>Join</button>
+    <p id="error-message"></p>
+  </form>
+</Layout>
+
+<script>
+  const joinFrom = document.getElementById("join-form") as HTMLFormElement;
+  const errorMessage = document.getElementById(
+    "error-message"
+  ) as HTMLParagraphElement;
+
+  joinFrom.addEventListener("submit", handleSubmit);
+
+  async function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
+
+    const name = new FormData(joinFrom).get("name");
+
+    if (!name) {
+      errorMessage.innerText = "Please enter your name to join a group.";
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/join.json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      const { message, data, success } = await response.json();
+
+      if (!success) {
+        errorMessage.innerText = message;
+        return;
+      }
+
+      sessionStorage.setItem("name", name as string);
+      sessionStorage.setItem("group", JSON.stringify(data));
+
+      location.href = "/banana.html";
+    } catch (e) {
+      errorMessage.innerText =
+        "Oops, something went wrong please refresh the page and try again.";
+      console.error(e);
+    }
+  }
+</script>

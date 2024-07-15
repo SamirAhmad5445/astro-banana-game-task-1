@@ -1,0 +1,55 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Banana Game">
+  <p id="greeting"></p>
+  <div>
+    <span id="counter"> count = Loading... </span>
+    <button id="banana">🍌</button>
+  </div>
+</Layout>
+
+<script>
+  const banana = document.getElementById("banana") as HTMLButtonElement;
+  const counter = document.getElementById("counter") as HTMLSpanElement;
+  const greeting = document.getElementById("greeting") as HTMLParagraphElement;
+
+  const group = JSON.parse(sessionStorage.getItem("group") as string);
+  const name = sessionStorage.getItem("name");
+
+  if (!group || !name) {
+    location.href = "/";
+  }
+
+  greeting.innerText = `Welcome, ${name} in group ${group.id}`;
+
+  banana.addEventListener("click", updateCount);
+
+  setInterval(getCount, 200);
+
+  async function getCount() {
+    try {
+      const response = await fetch(`api/group/${group.id}.json`);
+      const { data } = await response.json();
+
+      counter.innerText = `count = ${data.count}`;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function updateCount() {
+    try {
+      await fetch(`/api/group/increment.json`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ groupId: group.id }),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+</script>
